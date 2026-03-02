@@ -51,6 +51,7 @@ const endSound = new Audio(endsfx)
 const [usedQuestionIds, setUsedQuestionIds] = useState([]);
 const startSound = new Audio(startsfx)
 const jumpSound = new Audio(jump)
+const [levelStatus, setLevelStatus] = useState({});
 //////
 const playPinSound = () => {
   pinSound.currentTime = 0
@@ -348,14 +349,21 @@ const startLevel = (lvlId) => {
 /////
 const wow =()=>{
   if (answeredCount + 1 >= currentLevel.pins.length) {
-  if (level < levels.length) {
-    setLevel(prev => prev + 1)
-    setAnsweredCount(0)
-    setFoundPins([])      // RESET PIN
-           setSummary(null)// Tutup summary
-  } else {
+
+  // Update the status for the level just finished
+ 
+  const isSolved = score > currentLevel.pins.length / 2;
+    const statusText = isSolved ? 'Solved' : 'Not Solved';
+
+    // 2. Update the levelStatus state using the current level ID as the key
+    setLevelStatus(prev => ({
+      ...prev,
+      [level]: statusText
+    }));
+    
     setScreen('result')
-  }
+
+  
 }
 }
 
@@ -547,30 +555,40 @@ turn off music
       WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
       scrollSnapType: 'x mandatory' // Snaps levels into place
     }}>
-      {levels.map(lvl => (
-        <div key={lvl.id}  style={{
-          flex: '0 0 auto', // Prevents cards from shrinking
-          width: '495px',
-          border: '2px solid #7c7474',
-          borderRadius: '15px',
-          padding: '10px',
-          backgroundColor: '#414141',
-          scrollSnapAlign: 'center' // Works with scrollSnapType
-        }}>
-          <h3>Level {lvl.id}</h3>
-          {/*<img 
-            src={lvl.bg} 
-            alt={`Preview ${lvl.id}`} 
-            style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px' }} 
-          /> Optional: Add a preview image for each level */}
-          <button 
-            onClick={() => startLevel(lvl.id)} 
-            className="actionBtnStyle"
-          >
-            Main
-          </button>
-        </div>
-      ))}
+    {levels.map(lvl => {
+        const status = levelStatus[lvl.id]; // Get current status
+        
+        return (
+          <div key={lvl.id} style={{
+            flex: '0 0 auto', width: '450px', border: '2px solid #7c7474',
+            borderRadius: '15px', padding: '10px', backgroundColor: '#414141'
+          }}>
+            <h3>Level {lvl.id}</h3>
+            
+            {/* Status Badge */}
+            {status && (
+              <div style={{
+                padding: '5px',
+                borderRadius: '5px',
+                marginBottom: '10px',
+                fontWeight: 'bold',
+                backgroundColor: status === 'Solved' ? '#28a745' : '#dc3545',
+                color: 'white',
+                textAlign: 'center'
+              }}>
+                {status === 'Solved' ? '✅ CASE SOLVED' : '❌ CASE NOT SOLVED'}
+              </div>
+            )}
+
+            <button 
+              onClick={() => startLevel(lvl.id)} 
+              className="actionBtnStyle"
+            >
+              {status ? 'Main Lagi' : 'Main'}
+            </button>
+          </div>
+        );
+      })}
     </div>
     <h1></h1>
                    {musicOn ?   <img src={rudop} alt="rudop" className='win-image'  /> : null}
