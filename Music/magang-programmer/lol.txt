@@ -1,0 +1,7 @@
+yo
+add:
+1.disable node if answered
+2. score
+3. number input
+4. summary
+yo
